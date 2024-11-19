@@ -3,9 +3,10 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import pandas as pd
 
+
 # Function to process selected months and CSV files
 def process_selected_data(selected_months, selected_csvs, base_path):
-    all_data = []
+    data = {}
 
     for month in selected_months:
         year, month_number = month.split('_')
@@ -14,6 +15,7 @@ def process_selected_data(selected_months, selected_csvs, base_path):
         month_path = os.path.join(base_path, year_folder, month_folder)
 
         if os.path.isdir(month_path):  # Ensure it is a directory
+            month_data = {}
             for csv_type in selected_csvs:
                 # Define the file path
                 file_name = f"{csv_type}-{month_folder}.csv"
@@ -21,25 +23,25 @@ def process_selected_data(selected_months, selected_csvs, base_path):
 
                 try:
                     # Read the CSV file
-                    data = pd.read_csv(file_path, low_memory=False)
+                    data_frame = pd.read_csv(file_path, low_memory=False)
 
                     # Add metadata columns
-                    data['Source'] = csv_type
-                    data['Year'] = year
-                    data['Month'] = month_number
+                    data_frame['Source'] = csv_type
+                    data_frame['Year'] = year
+                    data_frame['Month'] = month_number
 
-                    # Rename columns to include the month and avoid conflicts
-                    data.columns = [f"{month}_{col}" if col not in ['Source', 'Year', 'Month'] else col for col in data.columns]
-
-                    # Append to all_data
-                    all_data.append(data)
+                    # Add to month-level data
+                    month_data[csv_type] = data_frame
 
                 except FileNotFoundError:
                     print(f"File not found: {file_name} in {month_folder}")
 
-    # Combine all data into a single DataFrame
-    final_data = pd.concat(all_data, ignore_index=True) if all_data else pd.DataFrame()
-    return final_data
+            # Add the month data to the corresponding year
+            if year not in data:
+                data[year] = {}
+            data[year][month] = month_data
+
+    return data
 
 
 # GUI for selecting months and CSV files
@@ -57,13 +59,17 @@ def selection_gui(base_path):
 
         root.destroy()
 
-        # Process data and show DataFrame in terminal
+        # Process data and create the hierarchical structure
         final_data = process_selected_data(selected_months, selected_csvs, base_path)
-        if final_data.empty:
-            print("\nNo data was found or processed.")
-        else:
-            print("\nProcessed DataFrame (Preview):")
-            print(final_data.head())  # Display the head of the DataFrame in the terminal
+
+        # Display a preview of the processed structure in the terminal
+        print("\nData Structure Overview:")
+        for year, months in final_data.items():
+            print(f"Year: {year}")
+            for month, month_data in months.items():
+                print(f"  Month: {month}")
+                for csv_type, df in month_data.items():
+                    print(f"    {csv_type}: {len(df)} rows")
 
     # Create the main GUI window
     root = tk.Tk()
