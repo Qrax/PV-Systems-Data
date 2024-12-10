@@ -71,7 +71,7 @@ system_amsterdam = pvlib.pvsystem.PVSystem(
 )
 
 system_sydney = pvlib.pvsystem.PVSystem(
-    surface_tilt=30,
+    surface_tilt=0,
     surface_azimuth=0,
     module_parameters=module,
     inverter_parameters=inverter,
@@ -80,7 +80,7 @@ system_sydney = pvlib.pvsystem.PVSystem(
 )
 
 system_antarctica = pvlib.pvsystem.PVSystem(
-    surface_tilt=30,
+    surface_tilt=10,
     surface_azimuth=0,
     module_parameters=module,
     inverter_parameters=inverter,
