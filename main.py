@@ -121,7 +121,7 @@ def selection_gui(base_path):
 
 
 # Base file path
-base_path = "../../OneDrive - HvA/Jaar_4/PV systems modeling and analysis/Data/wetransfer_solar-field-data_2024-11-18_1414"
+base_path = "../../OneDrive - HvA/Jaar_4/PV systems modeling and analysis/Data/data_folder"
 
 # Run the selection GUI
 selection_gui(base_path)
